@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import NoteResult from './NoteResult';
 import axios from 'axios';
-
+import Result from './Result';
 class NoteResults extends Component {
     state = {
         title: '',
@@ -11,8 +11,30 @@ class NoteResults extends Component {
         url: '',
         date: '',
         headline: '',
-        summary: ''
-    };
+        summary: '',
+        image: '',
+        byline: ''
+    }
+    getNotes = () => {
+        axios.get("/note/" + this.props.location.pathname.slice(6)).then(res => {
+            console.log('axios get');
+            this.setState({
+                notes : res.data.note,
+                headline: res.data.article.headline,
+                date: res.data.article.date,
+                summary: res.data.article.summary,
+                url: res.data.article.url,
+                articleID: this.props.location.pathname.slice(6),
+                _id: res.data.article._id,
+                byline: res.data.article.byline,
+                image: res.data.article.image,
+                title: '',
+                text: ''
+            });
+            console.log('axios get state', this.state);
+            return res;
+        }).then((res) => {console.log(res)})
+    }
     handleInputChange = event => {
         const value = event.target.value;
         const name = event.target.name;
@@ -20,56 +42,46 @@ class NoteResults extends Component {
             [name]: value
         });
         console.log(this.state)
-    };
+    }
     componentDidMount = () => {
         console.log('path', this.props.location.pathname.slice(6))
-        axios.get("/note/" + this.props.location.pathname.slice(6)).then(res => {
-            console.log('axios get');
-            this.setState({
-                notes : res.data.note,
-                headline: res.data.article.headline,
-                image: res.data.article.image,
-                date: res.data.article.date,
-                summary: res.data.article.summary,
-                url: res.data.article.url,
-                articleID: this.props.location.pathname.slice(6)
-            });
-            console.log('axios get state', this.state);
-            return res;
-        }).then((res) => {console.log(res)})
+        this.getNotes();
 
     }
     handleFormSubmit = event => {
-        // event.preventDefault();
+        event.preventDefault();
         console.log('handleSubmit', this.state)
         // var path = "/note/" + this.props.location.pathname.slice(6) + '/save';
         axios.post(this.state.articleID + '/save', this.state).then((response) => {
             // console.log('post', response);
             console.log('state', this.state)
-            this.setState({
-                title: '',
-                text: '',
-            });
-        });
+        }).then(res=>
+            this.getNotes()
+        );
     };
-    componentDidUpdate () {
+    componentDidUpdate = () => {
         this.render();
     }
     render() {
         console.log(this.state.notes)
         return(
             <div>
-                <div className="result-div panel panel-default row" style={{borderWidth : 1, borderStyle : 'solid', borderColor : 'tan', backgroundColor: 'tan'}}>
-                    <div className="col-xs-1 img-div" style={{backgroundColor: 'tan'}}>
-                        <img alt='NY Times Article' style={{width: 50, backgroundColor: 'tan'}} src={this.state.image} />
-                    </div>
-                    <div className="panel-body col-xs-11">
-                        <a href={this.state.url} className="black-text"><h5>{this.state.headline}</h5></a>
-                        <p className='summary' style={{color: 'black'}}>{this.state.summary}</p>
-                        <p className="date" >Published {this.state.date}</p>
-                    </div>
-
-                </div>
+                <Result key={this.state.articleID} 
+                    articleID={this.state.articleID}
+                    image={this.state.image} 
+                    url={this.state.url} 
+                    title={this.state.headline} 
+                    date={this.state.date} 
+                    summary={this.state.summary}
+                    saved={this.state.saved} 
+                    buttonText={'Notes'}
+                    buttonClass={'hidden'}
+                    role={'note'} 
+                    href={'/note/'+ this.state._id}
+                    section={this.state.section}
+                    byline={this.state.byline}
+                    deleteHref={'/saved'}
+                />
                 <hr />
                 <h2><strong>New Note</strong></h2>
                 <form className="form">
@@ -96,7 +108,7 @@ class NoteResults extends Component {
                     <br />
                     <br />
                     {"   "}
-                    <button className='btn btn-primary' onClick={this.handleFormSubmit}>Submit New Note</button>
+                    <button className='btn btn-primary' style={{width: '50%'}}onClick={this.handleFormSubmit}>Submit New Note</button>
                 </form>
                 <h1 style={{color: 'black'}}>Notes</h1>
                 <div className="result-holder" style={{backgroundColor: 'black'}}>

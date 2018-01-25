@@ -13,18 +13,15 @@ class Search extends Component {
         };
         // this.componentDidMount = this.componentDidMount.bind(this);
     }
-    componentWillMount() {
+    componentDidMount () {
         console.log('search called');
-        var that;
-        that = this
-        axios.get('/search').then(function(res) {
-            console.log(that);
-            that.setState({article : res.data});
+        axios.get('/search').then(res => {
+            this.setState({article : res.data});
         });
     }
     render() {
         return(
-            <div className="result-holder">
+            <div className="result-holder" style={{backgroundColor: 'black'}}>
                 <h3>New Articles</h3>
                 {this.state.article.map(function(article, i) {
                     console.log("article", article)
@@ -40,6 +37,8 @@ class Search extends Component {
                             buttonText={"Save"}
                             buttonClass={'btn btn-primary'}
                             role={'save'}
+                            section={article.section}
+                            byline={article.byline}
                         />
                     );
                 })}

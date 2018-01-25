@@ -33,14 +33,14 @@ class NoteResult extends Component {
     render () {
         return(
             <div className={this.state.style}>
-                <div className="result-div panel panel-default" id={this.props.noteID}>
+                <div className="result-div panel panel-default" id={this.props.noteID} style={{backgroundColor: 'tan'}}>
                     <div className="panel-body">
-                        <h5 style={{color: 'black'}}>{this.props.title}</h5>
+                        <h2 style={{color: 'black'}}><strong>{this.props.title}</strong></h2>
                         <p className="date" style={{color: 'black'}}>{this.props.text}</p>
                     </div>
                     <br />
-                    <div className="panel-footer">
-                        <button className='btn btn-danger' style={{color: 'black'}} onClick={this.handleClick}>Delete Note <span className='glyphicon glyphicon-remove'/> </button>
+                    <div className="panel-footer" style={{backgroundColor: 'tan'}}>
+                        <button className='btn btn-danger' style={{color: 'black', width:'50%'}} onClick={this.handleClick}>Delete Note <span className='glyphicon glyphicon-remove'/> </button>
                     </div>
                 </div>
             </div>

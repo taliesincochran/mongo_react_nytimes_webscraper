@@ -11,7 +11,7 @@ class Saved extends Component{
             message: ""
         };
     }
-    componentWillMount = () => {
+    componentDidMount = () => {
         console.log('save called');
         axios.get('/saved').then(res => {
             if(res.data.length>0) {
@@ -29,9 +29,9 @@ class Saved extends Component{
                 console.log('component did mount', res.data)
         });
     }
-    render = () => {
+    render() {
         return(
-                <div className="result-holder">
+                <div className="result-holder" style={{backgroundColor: 'black'}}>
                     <h3>{this.state.message}</h3>
                     {this.state.article.map(function(article) {
                         return (
@@ -46,7 +46,9 @@ class Saved extends Component{
                                 buttonText={'Notes'}
                                 buttonClass={'btn btn-primary'}
                                 role={'note'} 
-                                href={'/note/'+article._id}
+                                href={'/note/'+ article._id}
+                                section={article.section}
+                                byline={article.byline}
                             />
                         );
                     })}

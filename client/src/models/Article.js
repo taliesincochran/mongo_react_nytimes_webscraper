@@ -31,10 +31,16 @@ var ArticleSchema = new Schema({
 		type: Boolean,
 		default: false
 	},
+	'section': {
+		type: String
+	},
 	'image': {
 		type: String,
 		default: "http://1000logos.net/wp-content/uploads/2017/04/Symbol-New-York-Times.png"
 	},
+	'byline': {
+		type: String
+	}
 });
 var Article = mongoose.model("Article", ArticleSchema);
 module.exports = Article;

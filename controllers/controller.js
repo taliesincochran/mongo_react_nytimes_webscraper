@@ -6,72 +6,74 @@ var cheerio = require('cheerio');
 router.get("/", function(req,res) {
 	res.sendFile(process.cwd() + "/public/index.html");
 });
-function getArticles(urlToScrape, savedArticles) {
+function getArticles(urlToScrape, savedArticles, section) {
     axios.get(urlToScrape)
-	.then(function(response) {
-		let savedHeadlines = [];
-		savedArticles.map(article => {
-			if(article.deleted || article.saved) {
-				savedHeadlines.push(article.headline)
-			}
-		})
-		return {
-			response: response,
-			savedHeadlines: savedHeadlines,
-		};
-	})
-    .then(function(response) {
+		.then(response => {
+			let savedHeadlines = [];
+			savedArticles.map(article => {
+				if(article.deleted || article.saved) {
+					savedHeadlines.push(article.headline)
+				}
+			})
+			return {
+				response: response,
+				savedHeadlines: savedHeadlines,
+			};
+	}).then(response => {
     	console.log("axios called");
         let $ = cheerio.load(response.response.data);
         let count = 0;
-        // let resultArray=[];
         $("#latest-panel article.story.theme-summary").each((i, element) => {
             var newArticle = new db.Article({
                 url: $(element).find('.story-body>.story-link').attr('href'),
 	            headline: $(element).find('h2.headline').text().trim(),
 	            summary : $(element).find('p.summary').text().trim(),
 	            date: $(element).find('time.dateline').attr('content'),
+	            section: section,
+	            byline: $(element).find('p.summary').next().text().trim(),
+	            image: $(element).find('.story-body>.story-link>.story-meta').next().children().attr('src')
             });
             if (newArticle.url) {
-            	console.log(newArticle)
+            	console.log(newArticle.url)
+            	console.log('image', newArticle.image);
+            	console.log('byline', newArticle.byline);
      			if (!response.savedHeadlines.includes(newArticle.headline)) {
-     				console.log('if', response.savedHeadlines)
-            		// resultArray.push(newArticle);
 		            db.Article.create(newArticle).then(function(dbArticle) {
-		                console.log('article: ',dbArticle);
+		                console.log('article: ', dbArticle.headline);
 		            }).catch(function(err) {
-		                res.json(err);
+		                console.log(err);
 		            });
             	}
      		}
         });
-		// res.send(resultArray);
-    }).catch(err=>console.log(err))
+    }).catch(err=>console.log("get articles error"))
 }
 //Scraping route
 router.get("/search", function(req,res) {
 	console.log('search called');
+	let results = [];
     db.Article
-    .find({})
-    .then(savedArticles => {
-	    getArticles("https://www.nytimes.com/section/world?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=World&WT.nav=page", savedArticles);
-    	getArticles('https://www.nytimes.com/section/us?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=U.S.&WT.nav=page', savedArticles);
-    	getArticles('https://www.nytimes.com/section/politics?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Politics&pgtype=sectionfront', savedArticles);
-        getArticles('https://www.nytimes.com/section/technology?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Tech&pgtype=sectionfront', savedArticles);
-		getArticles('https://www.nytimes.com/section/business?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Business&pgtype=sectionfront', savedArticles);
-		getArticles('https://www.nytimes.com/section/science?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Science&pgtype=sectionfront', savedArticles);
-		getArticles('https://www.nytimes.com/section/health?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Health&pgtype=sectionfront', savedArticles);
-		getArticles('https://www.nytimes.com/section/sports?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Sports&pgtype=sectionfront', savedArticles);
-    }).then(result => {
+    	.find({})
+    	.then(savedArticles => {
+		    getArticles("https://www.nytimes.com/section/world?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=World&WT.nav=page", savedArticles, "World");
+	  //   	getArticles('https://www.nytimes.com/section/politics?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Politics&pgtype=sectionfront', savedArticles, "Politics");
+	  //       getArticles('https://www.nytimes.com/section/technology?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Tech&pgtype=sectionfront', savedArticles, "Technology");
+			// getArticles('https://www.nytimes.com/section/business?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Business&pgtype=sectionfront', savedArticles, "Buisness");
+			// getArticles('https://www.nytimes.com/section/science?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Science&pgtype=sectionfront', savedArticles, "Science");
+			// getArticles('https://www.nytimes.com/section/health?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Health&pgtype=sectionfront', savedArticles, "Health");
+			// getArticles('https://www.nytimes.com/section/sports?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Sports&pgtype=sectionfront', savedArticles, "Sports");
+	  //   	getArticles('https://www.nytimes.com/section/us?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=U.S.&WT.nav=page', savedArticles, "U.S.");
+    	}).then(result => {
         	db.Article.find({deleted: false, saved: false})
         		.then(response=> {
+        			// console.log('new article found: ', result);
         			res.send(response);
         		})
-        })
-        .catch(function(error) {
-            console.log(error);
-        }).catch(err=> console.log(err));
-});
+        }).catch(error => {
+            console.log("db error");
+		});
+
+})
 
 //Route to save an article
 router.post('/saved/:id', function(req,res){
@@ -86,7 +88,6 @@ router.post('/saved/:id', function(req,res){
 router.post('/delete/:id/', function(req,res) {
 	db.Article.update({_id: req.params.id}, {$set: {deleted: true}})
 		.then(response => {
-			console.log('article delete res', res);
 			res.send(response);
 		})
 		.catch(err => res.json(err))
@@ -95,7 +96,6 @@ router.post('/delete/:id/', function(req,res) {
 router.get("/saved", function(req,res) {
 	db.Article.find({saved: true, deleted: false})
 		.then(response => {
-			console.log('article fetch res');
 			res.send(response);
 		})
 		.catch(err => res.json(err))
@@ -105,9 +105,8 @@ router.get("/saved", function(req,res) {
 //===========================================================
 //Route to article notes
 router.get('/note/:id', function(req,res) {
+	console.log('note called');
 	var id = req.params.id;
-	console.log('note called, article: ', id)
-	console.log(req)
 	var resObject = {}
 	db.Article.findOne({_id: id})
 		.then(results => {
@@ -115,7 +114,6 @@ router.get('/note/:id', function(req,res) {
 			db.Note.find({articleID: id, deleted: false})
 				.then(noteResults => {
 					resObject.note = noteResults;
-					console.log('resObj', resObject);
 					res.send(resObject);
 				})
 		}).catch(err => res.json(err));
@@ -123,7 +121,7 @@ router.get('/note/:id', function(req,res) {
 //add to saved notes
 router.post("/note/:id/save", function(req,res) {
 	var body = req.body;
-	console.log('req note create', req.body)
+	console.log('note body', body.title);
 	var newNote = {
 		title: body.title,
 		text: body.text,
@@ -132,11 +130,8 @@ router.post("/note/:id/save", function(req,res) {
 	console.log(newNote);
 	db.Note.create(newNote)
 	.then(result => {
-		console.log('NoteCreateCalled', newNote.articleID)
-		console.log('note created result', result._id)
 		db.Article.update({_id: newNote.articleID}, {$push: {notes: {_id: result._id}}}, {new:true})
 		.then(data => {
-			console.log('note created, article update')
 			res.json(result)
 		})
 		.catch(err => res.json(err))
