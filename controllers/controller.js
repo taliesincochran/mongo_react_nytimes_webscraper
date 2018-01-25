@@ -66,15 +66,12 @@ router.get("/search", function(req,res) {
     	}).then(result => {
         	db.Article.find({deleted: false, saved: false})
         		.then(response=> {
-        			// console.log('new article found: ', result);
         			res.send(response);
         		})
         }).catch(error => {
             console.log("db error");
 		});
-
 })
-
 //Route to save an article
 router.post('/saved/:id', function(req,res){
 	db.Article.update({_id: req.params.id}, {$set: {saved: true}})
@@ -104,8 +101,7 @@ router.get("/saved", function(req,res) {
 //Routes for article notes
 //===========================================================
 //Route to article notes
-router.get('/note/:id', function(req,res) {
-	console.log('note called');
+router.get('/note/:id', (req,res) => {
 	var id = req.params.id;
 	var resObject = {}
 	db.Article.findOne({_id: id})
@@ -119,15 +115,13 @@ router.get('/note/:id', function(req,res) {
 		}).catch(err => res.json(err));
 })
 //add to saved notes
-router.post("/note/:id/save", function(req,res) {
+router.post("/note/:id/save", (req,res) => {
 	var body = req.body;
-	console.log('note body', body.title);
 	var newNote = {
 		title: body.title,
 		text: body.text,
 		articleID: body.articleID		
 	};
-	console.log(newNote);
 	db.Note.create(newNote)
 	.then(result => {
 		db.Article.update({_id: newNote.articleID}, {$push: {notes: {_id: result._id}}}, {new:true})
@@ -139,7 +133,7 @@ router.post("/note/:id/save", function(req,res) {
 	.catch(err=> res.json(err));
 });
 //route to delete a note
-router.post("/note/:id/delete/:noteId", function(req,res) {
+router.post("/note/:id/delete/:noteId", (req,res) => {
 	console.log('articleID', req.params.id);
 	console.log('noteID', req.params.noteId);
 	db.Note.remove({_id: req.params.noteId})
