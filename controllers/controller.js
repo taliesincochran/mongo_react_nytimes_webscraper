@@ -55,14 +55,14 @@ router.get("/search", function(req,res) {
     db.Article
     	.find({})
     	.then(savedArticles => {
+		   	getArticles('https://www.nytimes.com/section/politics?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Politics&pgtype=sectionfront', savedArticles, "Politics");
+	        getArticles('https://www.nytimes.com/section/technology?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Tech&pgtype=sectionfront', savedArticles, "Technology");
+			getArticles('https://www.nytimes.com/section/business?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Business&pgtype=sectionfront', savedArticles, "Buisness");
+			getArticles('https://www.nytimes.com/section/science?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Science&pgtype=sectionfront', savedArticles, "Science");
+			getArticles('https://www.nytimes.com/section/health?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Health&pgtype=sectionfront', savedArticles, "Health");
+			getArticles('https://www.nytimes.com/section/sports?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Sports&pgtype=sectionfront', savedArticles, "Sports");
+		   	getArticles('https://www.nytimes.com/section/us?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=U.S.&WT.nav=page', savedArticles, "U.S.");
 		    getArticles("https://www.nytimes.com/section/world?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=World&WT.nav=page", savedArticles, "World");
-	  //   	getArticles('https://www.nytimes.com/section/politics?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Politics&pgtype=sectionfront', savedArticles, "Politics");
-	  //       getArticles('https://www.nytimes.com/section/technology?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Tech&pgtype=sectionfront', savedArticles, "Technology");
-			// getArticles('https://www.nytimes.com/section/business?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Business&pgtype=sectionfront', savedArticles, "Buisness");
-			// getArticles('https://www.nytimes.com/section/science?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Science&pgtype=sectionfront', savedArticles, "Science");
-			// getArticles('https://www.nytimes.com/section/health?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Health&pgtype=sectionfront', savedArticles, "Health");
-			// getArticles('https://www.nytimes.com/section/sports?module=SectionsNav&action=click&version=BrowseTree&region=TopBar&contentCollection=Sports&pgtype=sectionfront', savedArticles, "Sports");
-	  //   	getArticles('https://www.nytimes.com/section/us?action=click&pgtype=Homepage&region=TopBar&module=HPMiniNav&contentCollection=U.S.&WT.nav=page', savedArticles, "U.S.");
     	}).then(result => {
         	db.Article.find({deleted: false, saved: false})
         		.then(response=> {
