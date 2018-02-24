@@ -3,7 +3,6 @@ var Schema = mongoose.Schema;
 var ArticleSchema = new Schema({
 	'headline': {
 		type: String,
-		unique: true,
 		required: true
 	},
 	'url': {
