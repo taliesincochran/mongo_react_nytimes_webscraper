@@ -38,10 +38,10 @@ class Result extends Component{
                 <div className="result-div panel panel-default" style={{overflow: 'auto', backgroundColor: 'tan'}}>
                     <div className="panel-body">
                         <Img 
-                            src={this.state.image}
+                            src={this.props.image}
                             alt='NY Times Article' 
                             style={{width: '33%', backgroundColor: 'tan'}} 
-                            className='col-xs-4' src={this.props.image} 
+                            className='col-xs-4' 
                         />
                         <div className='col-xs-8'>
                             <a href={this.props.url} style={{color:'black'}}><h3><strong>{this.props.title}</strong></h3></a>
